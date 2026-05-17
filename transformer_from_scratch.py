@@ -17,6 +17,22 @@ def attentionSDP(queries, keys, values, mask=None):
 def attentionSDP_oneline(queries, keys, values):
     return softmax(queries.matmul(keys.transpose(-2, -1))/sqrt(len(keys))).matmul(values)
 
+def xavierInit(*size):
+    """see github.com/pytorch/pytorch/blob/0d62256a2b23365f8e1604297eb23a6545102aa8/torch/nn/init.py#L479,
+    Massive Exploration of Neural Machine Translation Architectures: arxiv.org/pdf/1703.03906
+    """
+
+    def getFanInFanOut(*size):
+        if len(size) < 2:
+            raise ValueError("Cannot calculate fan_in/_out for less then 2 dimensions")
+
+        fieldSize = prod(size[2:])
+        return size[1]*fieldSize, size[0]*fieldSize
+
+    fanIn, fanOut = getFanInFanOut(*size)
+    a = sqrt(6/(fanIn + fanOut))
+    return th.empty(*size).uniform_(-a, a)
+
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, n_heads):
         super().__init__()
@@ -153,3 +169,19 @@ class DecoderLayer(nn.Module):
         x = self.norm_two(x)
 
         return x
+
+class Embedding(nn.Module):
+    def __init__(self, n_vocab, d_model):
+        super().__init__()
+
+        self.n_vocab = n_vocab
+        self.d_model = d_model
+
+        self.weight = nn.Paramter(xavierInit(self.n_vocab, self.d_model))
+        # precalculate
+        self.d_model_sqrt = sqrt(self.d_model)
+
+    def forward(self, x):
+        """From AIAYN: "In the embedding layers, we multiply those weights by sqrt(d_model)"
+        """
+        return self.weight[x]*self.d_model_sqrt
