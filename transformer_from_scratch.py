@@ -88,3 +88,29 @@ class FeedForward(nn.Module):
         x = self.linear_one(x)
 
         return x
+
+class EncoderLayer(nn.Module):
+    def __init__(self, d_model, d_heads):
+        super().__init__()
+
+        self.d_model = d_model
+        self.d_heads = d_heads
+
+        self.mha_zero = MultiHeadAttention(d_model=self.d_model, d_heads=self.d_heads)
+        self.norm_zero = LayerNorm(d_model=self.d_model)
+
+        self.ff_one = FeedForward(d_model=self.d_model)
+        self.norm_one = LayerNorm(d_model=self.d_model)
+
+    def forward(self, x):
+        residual = x
+        x = self.mha_zero(x)
+        x += residual
+        x = self.norm_zero(x)
+
+        residual = x
+        x = self.ff_one(x)
+        x += residual
+        x = self.norm_one(x)
+
+        return x
