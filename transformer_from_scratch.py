@@ -90,21 +90,23 @@ class FeedForward(nn.Module):
         return x
 
 class EncoderLayer(nn.Module):
-    def __init__(self, d_model, d_heads):
+    def __init__(self, d_model, d_heads, d_ff=None, mask=None):
         super().__init__()
 
         self.d_model = d_model
         self.d_heads = d_heads
+        self.d_ff = d_ff
+        self.mask = mask
 
         self.mha_zero = MultiHeadAttention(d_model=self.d_model, d_heads=self.d_heads)
         self.norm_zero = LayerNorm(d_model=self.d_model)
 
-        self.ff_one = FeedForward(d_model=self.d_model)
+        self.ff_one = FeedForward(d_model=self.d_model, d_ff=self.d_ff)
         self.norm_one = LayerNorm(d_model=self.d_model)
 
     def forward(self, x):
         residual = x
-        x = self.mha_zero(x)
+        x = self.mha_zero(x, x, x, mask=self.mask)
         x += residual
         x = self.norm_zero(x)
 
@@ -112,5 +114,42 @@ class EncoderLayer(nn.Module):
         x = self.ff_one(x)
         x += residual
         x = self.norm_one(x)
+
+        return x
+
+class DecoderLayer(nn.Module):
+    def __init__(self, d_model, d_heads, d_ff=None, mask=None, mask_enc=None):
+        super().__init__()
+
+        self.d_model = d_model
+        self.d_heads = d_heads
+        self.d_ff = d_ff
+        self.mask = mask
+        self.mask_enc = mask_enc
+
+        self.mha_zero = MultiHeadAttention(d_model=self.d_model, d_heads=self.d_heads)
+        self.norm_zero = LayerNorm(d_model=self.d_model)
+
+        self.mha_one = MultiHeadAttention(d_model=self.d_model, d_heads=self.d_heads)
+        self.norm_one = LayerNorm(d_model=self.d_model)
+
+        self.ff_two = FeedForward(d_model=self.d_model, d_ff=self.d_ff)
+        self.norm_two = LayerNorm(d_model=self.d_model)
+
+    def forward(self, x, out_enc):
+        residual = x
+        x = self.mha_zero(x, x, x, mask=self.mask)
+        x += residual
+        x = self.norm_zero(x)
+
+        residual = x
+        x = self.mha_one(x, out_enc, out_enc, mask=self.mask_enc)
+        x += residual
+        x = self.norm_one(x)
+
+        residual = x
+        x = self.ff_two(x)
+        x += residual
+        x = self.norm_two(x)
 
         return x
