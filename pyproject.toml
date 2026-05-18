@@ -1,0 +1,20 @@
+[project]
+name = "transformer-from-scratch"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "telamonian", email = "telamonian@users.noreply.github.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[build-system]
+requires = ["uv_build>=0.11.14,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# module-name = "transformer_from_scratch"
+module-root = "pysrc"
+# source-include = ["third_party.txt", "third_party_licenses.txt"]
+# wheel-exclude = ["transformer_from_scratch/_smoke_tests/**"]
