@@ -101,3 +101,40 @@ class DecoderLayer(nn.Module):
         x = self.norm_two(x)
 
         return x
+
+class Encoder(nn.Module):
+    def __init__(self, d_model, d_heads, n_layers=6, d_ff=None, mask=None):
+        super().__init__()
+
+        self.d_model = d_model
+        self.d_heads = d_heads
+        self.n_layers = n_layers
+        self.d_ff = d_ff
+        self.mask = mask
+
+        self.layers = [EncoderLayer(d_model=self.d_model, d_heads=self.d_heads, d_ff=self.d_ff, mask=self.mask) for _ in range(self.n_layers)]
+
+    def forward(self, x):
+        for layer in self.layers:
+            x = layer(x)
+
+        return x
+
+class Decoder(nn.Module):
+    def __init__(self, d_model, d_heads, n_layers=6, d_ff=None, mask=None, mask_enc=None):
+        super().__init__()
+
+        self.d_model = d_model
+        self.d_heads = d_heads
+        self.n_layers = n_layers
+        self.d_ff = d_ff
+        self.mask = mask
+        self.mask_enc = mask_enc
+
+        self.layers = [DecoderLayer(d_model=self.d_model, d_heads=self.d_heads, d_ff=self.d_ff, mask=self.mask, mask_enc=self.mask_enc) for _ in range(self.n_layers)]
+
+    def forward(self, x, out_enc):
+        for layer in self.layers:
+            x = layer(x, out_enc)
+
+        return x
