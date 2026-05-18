@@ -1,3 +1,4 @@
+import math
 from math import sqrt
 import torch as th
 import torch.nn as nn
@@ -26,7 +27,7 @@ def xavierInit(*size):
         if len(size) < 2:
             raise ValueError("Cannot calculate fan_in/_out for less then 2 dimensions")
 
-        fieldSize = prod(size[2:])
+        fieldSize = math.prod(size[2:])
         return size[1]*fieldSize, size[0]*fieldSize
 
     fanIn, fanOut = getFanInFanOut(*size)
@@ -185,3 +186,27 @@ class Embedding(nn.Module):
         """From AIAYN: "In the embedding layers, we multiply those weights by sqrt(d_model)"
         """
         return self.weight[x]*self.d_model_sqrt
+
+class PositionalEncoder(nn.Module):
+    def __init__(self, n_vocab, d_model):
+        super().__init__()
+
+        self.n_vocab = n_vocab
+        self.d_model = d_model
+
+        pe = th.zeros(n_vocab, d_model)
+        pos = th.arange(n_vocab).view(-1, 1)
+        arg = pos/(10000 ** (th.arange(0, d_model, 2)/d_model))
+
+        pe[:, ::2] = th.sin(arg)
+        pe[:, 1::2] = th.cos(arg)
+
+        # TODO: figure out if register_buffer is needed instead of regular assignment
+        self.pe = pe.unsqueeze(0)
+        # self.register_buffer("pe", pe.unsqueeze(0))
+
+    def forward(self, x):
+        """x is expected to have shape [batch_size, n_sample, d_model]
+        a chunk of pe with shape [1, n_sample, d_model] is added to x
+        """
+        return x + self.pe[:, :x.shape[1]]
