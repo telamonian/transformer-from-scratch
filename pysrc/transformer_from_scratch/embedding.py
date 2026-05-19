@@ -33,6 +33,8 @@ class Embedding(nn.Module):
     def forward(self, x):
         """From AIAYN: "In the embedding layers, we multiply those weights by sqrt(d_model)"
         """
+        # when indexing a tensor with another tensor, each tensor element is treated as an individual index.
+        # The results are then batched according to the dimensions of the indexing tensor
         return self.weight[x]*self.d_model_sqrt
 
 class PositionalEncoder(nn.Module):

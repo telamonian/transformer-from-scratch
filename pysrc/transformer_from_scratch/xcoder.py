@@ -38,15 +38,15 @@ class FeedForward(nn.Module):
         return x
 
 class EncoderLayer(nn.Module):
-    def __init__(self, d_model, d_heads, d_ff=None, mask=None):
+    def __init__(self, d_model, n_heads, d_ff=None, mask=None):
         super().__init__()
 
         self.d_model = d_model
-        self.d_heads = d_heads
+        self.n_heads = n_heads
         self.d_ff = d_ff
         self.mask = mask
 
-        self.mha_zero = MultiHeadAttention(d_model=self.d_model, d_heads=self.d_heads)
+        self.mha_zero = MultiHeadAttention(d_model=self.d_model, n_heads=self.n_heads)
         self.norm_zero = LayerNorm(d_model=self.d_model)
 
         self.ff_one = FeedForward(d_model=self.d_model, d_ff=self.d_ff)
@@ -66,19 +66,19 @@ class EncoderLayer(nn.Module):
         return x
 
 class DecoderLayer(nn.Module):
-    def __init__(self, d_model, d_heads, d_ff=None, mask=None, mask_enc=None):
+    def __init__(self, d_model, n_heads, d_ff=None, mask=None, mask_enc=None):
         super().__init__()
 
         self.d_model = d_model
-        self.d_heads = d_heads
+        self.n_heads = n_heads
         self.d_ff = d_ff
         self.mask = mask
         self.mask_enc = mask_enc
 
-        self.mha_zero = MultiHeadAttention(d_model=self.d_model, d_heads=self.d_heads)
+        self.mha_zero = MultiHeadAttention(d_model=self.d_model, n_heads=self.n_heads)
         self.norm_zero = LayerNorm(d_model=self.d_model)
 
-        self.mha_one = MultiHeadAttention(d_model=self.d_model, d_heads=self.d_heads)
+        self.mha_one = MultiHeadAttention(d_model=self.d_model, n_heads=self.n_heads)
         self.norm_one = LayerNorm(d_model=self.d_model)
 
         self.ff_two = FeedForward(d_model=self.d_model, d_ff=self.d_ff)
@@ -103,16 +103,21 @@ class DecoderLayer(nn.Module):
         return x
 
 class Encoder(nn.Module):
-    def __init__(self, d_model, d_heads, n_layers=6, d_ff=None, mask=None):
+    def __init__(self, d_model, n_heads, n_layers=6, d_ff=None, mask=None):
         super().__init__()
 
         self.d_model = d_model
-        self.d_heads = d_heads
+        self.n_heads = n_heads
         self.n_layers = n_layers
         self.d_ff = d_ff
         self.mask = mask
 
-        self.layers = [EncoderLayer(d_model=self.d_model, d_heads=self.d_heads, d_ff=self.d_ff, mask=self.mask) for _ in range(self.n_layers)]
+        self.layers = [EncoderLayer(
+            d_model=self.d_model,
+            n_heads=self.n_heads,
+            d_ff=self.d_ff,
+            mask=self.mask,
+        ) for _ in range(self.n_layers)]
 
     def forward(self, x):
         for layer in self.layers:
@@ -121,17 +126,23 @@ class Encoder(nn.Module):
         return x
 
 class Decoder(nn.Module):
-    def __init__(self, d_model, d_heads, n_layers=6, d_ff=None, mask=None, mask_enc=None):
+    def __init__(self, d_model, n_heads, n_layers=6, d_ff=None, mask=None, mask_enc=None):
         super().__init__()
 
         self.d_model = d_model
-        self.d_heads = d_heads
+        self.n_heads = n_heads
         self.n_layers = n_layers
         self.d_ff = d_ff
         self.mask = mask
         self.mask_enc = mask_enc
 
-        self.layers = [DecoderLayer(d_model=self.d_model, d_heads=self.d_heads, d_ff=self.d_ff, mask=self.mask, mask_enc=self.mask_enc) for _ in range(self.n_layers)]
+        self.layers = [DecoderLayer(
+            d_model=self.d_model,
+            n_heads=self.n_heads,
+            d_ff=self.d_ff,
+            mask=self.mask,
+            mask_enc=self.mask_enc,
+        ) for _ in range(self.n_layers)]
 
     def forward(self, x, out_enc):
         for layer in self.layers:
