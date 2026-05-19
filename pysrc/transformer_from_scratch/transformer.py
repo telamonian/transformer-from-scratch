@@ -34,3 +34,16 @@ class Transformer(nn.Module):
             self.output = None
         else:
             self.output = nn.Linear(d_model, n_vocab_tgt)
+
+    def forward(self, src, tgt):
+        # TODO figure out masking
+        src = self.embedding_enc(src)
+        tgt = self.embedding_dec(tgt)
+
+        src = self.positional_enc(src)
+        tgt = self.positional_enc(tgt)
+
+        src = self.encoder(src)
+        tgt = self.decoder(tgt, out_enc=src)
+
+        return self.output(tgt)
