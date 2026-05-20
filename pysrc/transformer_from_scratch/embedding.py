@@ -27,15 +27,14 @@ class Embedding(nn.Module):
         self.d_model = d_model
 
         self.weight = nn.Paramter(xavierInit(self.n_vocab, self.d_model))
-        # precalculate
-        self.d_model_sqrt = sqrt(self.d_model)
 
     def forward(self, x):
         """From AIAYN: "In the embedding layers, we multiply those weights by sqrt(d_model)"
         """
         # when indexing a tensor with another tensor, each tensor element is treated as an individual index.
         # The results are then batched according to the dimensions of the indexing tensor
-        return self.weight[x]*self.d_model_sqrt
+        # NOTE moved scalar multiplication to Transformer.forward
+        return self.weight[x] #*self.d_model_sqrt
 
 class PositionalEncoder(nn.Module):
     def __init__(self, n_vocab, d_model):

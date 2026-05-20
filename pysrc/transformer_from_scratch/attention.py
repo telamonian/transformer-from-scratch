@@ -1,6 +1,20 @@
 from math import sqrt
-import torch.nn as nn
-from torch.nn.functional import softmax
+import torch as th
+from torch import nn, Tensor
+
+def softmax(x: Tensor, dim, dtype=None):
+    out = th.empty(*x.shape, dtype=th.float if dtype is None else dtype)
+
+    # x_max is a single element tensor
+    x_max = th.max(x)
+
+    # subtracting x_max balances out in the division step
+    th.exp(x - x_max, out=out)
+
+    out /= out.sum(dim=dim, keepdim=True)
+    # th.div(out, out.sum(dim=dim, keepdim=True), out=out)
+
+    return out
 
 def attentionSDP(queries, keys, values, mask=None):
     """scaled dot-product attention

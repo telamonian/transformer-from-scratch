@@ -10,6 +10,8 @@ class Transformer(nn.Module):
         super().__init__()
 
         self.d_model = d_model
+        # precalculate
+        self.d_model_sqrt = sqrt(self.d_model)
         self.n_heads = n_heads
         self.n_vocab = n_vocab
         self.n_vocab_tgt = n_vocab if n_vocab_tgt is None else n_vocab_tgt
@@ -28,17 +30,16 @@ class Transformer(nn.Module):
         self.encoder = Encoder(d_model=self.d_model, n_heads=self.n_heads, n_layers=6, d_ff=self.d_ff, mask=None)
         self.decoder = Decoder(d_model=self.d_model, n_heads=self.n_heads, n_layers=6, d_ff=self.d_ff, mask=None, mask_enc=None)
 
+        self.output = nn.Linear(d_model, n_vocab_tgt, bias=False)
+
         if tie_output:
-            # TODO: implement tying together the decoder embedding and the output layer weights
-            raise(NotImplementedError)
-            self.output = None
-        else:
-            self.output = nn.Linear(d_model, n_vocab_tgt)
+            # TODO does the right hand side need to be transposed?
+            self.output.weight = self.embedding_dec.weight
 
     def forward(self, src, tgt):
         # TODO figure out masking
-        src = self.embedding_enc(src)
-        tgt = self.embedding_dec(tgt)
+        src = self.embedding_enc(src)*self.d_model_sqrt
+        tgt = self.embedding_dec(tgt)*self.d_model_sqrt
 
         src = self.positional_enc(src)
         tgt = self.positional_enc(tgt)
