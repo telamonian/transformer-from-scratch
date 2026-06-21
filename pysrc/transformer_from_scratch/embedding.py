@@ -50,9 +50,11 @@ class PositionalEncoder(nn.Module):
         pe[:, ::2] = th.sin(arg)
         pe[:, 1::2] = th.cos(arg)
 
-        # TODO: figure out if register_buffer is needed instead of regular assignment
-        self.pe = pe.unsqueeze(0)
-        # self.register_buffer("pe", pe.unsqueeze(0))
+        # we register pe as a buffer since it is a fixed lookup table.
+        # Registration implies that it is part of the model's runtime state but is not a trainable tensor.
+        # In practical terms, registration allows pe to be part of the model's saved/loaded state,
+        # and also tells pytorch to move pe to a guest device (eg gpu) along with the rest of the model when appropriate
+        self.register_buffer("pe", pe.unsqueeze(0))
 
     def forward(self, x):
         """x is expected to have shape [batch_size, n_sample, d_model]
