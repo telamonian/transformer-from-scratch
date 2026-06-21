@@ -17,10 +17,12 @@ def softmax(x: Tensor, dim, dtype=None):
     return out
 
 def attentionSDP(queries, keys, values, mask=None):
-    """scaled dot-product attention
+    """scaled dot-product attention.
+    Expects q, k, v to be in the form [batch_size, n_heads, n_samples, d_k]
     """
+    _, _, _, d_k = keys.shape
 
-    weights = queries.matmul(keys.transpose(-2, -1))/sqrt(len(keys))
+    weights = queries.matmul(keys.transpose(-2, -1))/sqrt(d_k)
 
     if mask is not None:
         weights = weights.masked_fill(mask == 0, -1e9)
@@ -28,7 +30,7 @@ def attentionSDP(queries, keys, values, mask=None):
     return softmax(weights, -1).matmul(values), weights
 
 def attentionSDP_oneline(queries, keys, values):
-    return softmax(queries.matmul(keys.transpose(-2, -1))/sqrt(len(keys)), -1).matmul(values)
+    return softmax(queries.matmul(keys.transpose(-2, -1))/sqrt(keys.shape[3]), -1).matmul(values)
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, n_heads):
