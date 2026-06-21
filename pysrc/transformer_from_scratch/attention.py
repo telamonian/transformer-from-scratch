@@ -25,10 +25,10 @@ def attentionSDP(queries, keys, values, mask=None):
     if mask is not None:
         weights = weights.masked_fill(mask == 0, -1e9)
 
-    return softmax(weights).matmul(values), weights
+    return softmax(weights, -1).matmul(values), weights
 
 def attentionSDP_oneline(queries, keys, values):
-    return softmax(queries.matmul(keys.transpose(-2, -1))/sqrt(len(keys))).matmul(values)
+    return softmax(queries.matmul(keys.transpose(-2, -1))/sqrt(len(keys)), -1).matmul(values)
 
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, n_heads):
