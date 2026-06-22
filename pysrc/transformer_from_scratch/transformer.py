@@ -30,7 +30,7 @@ class Transformer(nn.Module):
         self.encoder = Encoder(d_model=self.d_model, n_heads=self.n_heads, n_layers=6, d_ff=self.d_ff, mask=None)
         self.decoder = Decoder(d_model=self.d_model, n_heads=self.n_heads, n_layers=6, d_ff=self.d_ff, mask=None, mask_enc=None)
 
-        self.output = nn.Linear(d_model, n_vocab_tgt, bias=False)
+        self.output = nn.Linear(self.d_model, self.n_vocab_tgt, bias=False)
 
         if tie_output:
             # TODO does the right hand side need to be transposed?
