@@ -26,7 +26,7 @@ class Embedding(nn.Module):
         self.n_vocab = n_vocab
         self.d_model = d_model
 
-        self.weight = nn.Paramter(xavierInit(self.n_vocab, self.d_model))
+        self.weight = nn.Parameter(xavierInit(self.n_vocab, self.d_model))
 
     def forward(self, x):
         """From AIAYN: "In the embedding layers, we multiply those weights by sqrt(d_model)"
