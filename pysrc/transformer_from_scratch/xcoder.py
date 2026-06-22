@@ -16,7 +16,10 @@ class LayerNorm(nn.Module):
 
     def forward(self, x):
         μ = th.mean(x, -1, keepdim=True)
+
+        # σσ is meant to be σ^2, ie the variance
         σσ = th.var(x, -1, keepdim=True, correction=0)
+
         return self.γ * (x - μ)/sqrt(σσ + self.ε) + self.β
 
 class FeedForward(nn.Module):
@@ -112,12 +115,13 @@ class Encoder(nn.Module):
         self.d_ff = d_ff
         self.mask = mask
 
-        self.layers = [EncoderLayer(
+        # plain list of layers needs to be wrapped in ModuleList for pytorch to treat them correctly as model layers
+        self.layers = nn.ModuleList([EncoderLayer(
             d_model=self.d_model,
             n_heads=self.n_heads,
             d_ff=self.d_ff,
             mask=self.mask,
-        ) for _ in range(self.n_layers)]
+        ) for _ in range(self.n_layers)])
 
     def forward(self, x):
         for layer in self.layers:
@@ -136,13 +140,14 @@ class Decoder(nn.Module):
         self.mask = mask
         self.mask_enc = mask_enc
 
-        self.layers = [DecoderLayer(
+        # plain list of layers needs to be wrapped in ModuleList for pytorch to treat them correctly as model layers
+        self.layers = nn.ModuleList([DecoderLayer(
             d_model=self.d_model,
             n_heads=self.n_heads,
             d_ff=self.d_ff,
             mask=self.mask,
             mask_enc=self.mask_enc,
-        ) for _ in range(self.n_layers)]
+        ) for _ in range(self.n_layers)])
 
     def forward(self, x, out_enc):
         for layer in self.layers:
