@@ -18,3 +18,17 @@ build-backend = "uv_build"
 module-root = "pysrc"
 # source-include = ["third_party.txt", "third_party_licenses.txt"]
 # wheel-exclude = ["transformer_from_scratch/_smoke_tests/**"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-cov>=5"]
+
+[tool.pytest.ini_options]
+pythonpath = ["pysrc"]
+testpaths = ["pytst"]
+
+[tool.coverage.run]
+branch = true
+source = ["transformer_from_scratch"]
+
+[tool.coverage.report]
+show_missing = true
