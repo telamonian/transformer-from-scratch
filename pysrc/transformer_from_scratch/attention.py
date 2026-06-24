@@ -5,10 +5,15 @@ from torch import nn, Tensor
 def softmax(x: Tensor, dim, dtype=None):
     out = th.empty(*x.shape, dtype=th.float if dtype is None else dtype)
 
-    # x_max is a single element tensor
-    x_max = th.max(x)
+    # x_max.shape is the same as x.shape, except that x.max_shape[dim] == 1.
+    # Each index of x_max holds the maximum value along the collapsed dim holding the other indices constant.
+    # We use a per-row max, instead of a global max like in many descriptions of softmax.
+    # This avoids a 0/0 == NaN that can arise one of the "rows" is all padding (-1e9)
+    x_max = th.max(x, dim=dim, keepdim=True).values
 
-    # subtracting x_max balances out in the division step
+    # we subtract x_max in order to keep the exponents small, which helps with numerical stability.
+    # Subtracting x_max balances out in the division step, since you can rewrite:
+    # {e^{x - x_m}}/{\sum_i{e^{x_i - x_m}}} -> {e^{x}e^{-x_m}}}/{e^{-x_m}\sum_i{e^{x_i}}}}
     th.exp(x - x_max, out=out)
 
     out /= out.sum(dim=dim, keepdim=True)
