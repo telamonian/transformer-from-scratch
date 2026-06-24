@@ -3,7 +3,10 @@ import torch as th
 from torch import nn, Tensor
 
 def softmax(x: Tensor, dim, dtype=None):
-    out = th.empty(*x.shape, dtype=th.float if dtype is None else dtype)
+    """NOTE: all math must be out-of-place. Using th.exp(..., out=out) / in-place /= breaks
+    autograd, which matters because softmax is fed grad-requiring scores during a forward pass.
+    """
+    dtype = th.float if dtype is None else dtype
 
     # x_max.shape is the same as x.shape, except that x.max_shape[dim] == 1.
     # Each index of x_max holds the maximum value along the collapsed dim holding the other indices constant.
@@ -14,10 +17,9 @@ def softmax(x: Tensor, dim, dtype=None):
     # we subtract x_max in order to keep the exponents small, which helps with numerical stability.
     # Subtracting x_max balances out in the division step, since you can rewrite:
     # {e^{x - x_m}}/{\sum_i{e^{x_i - x_m}}} -> {e^{x}e^{-x_m}}}/{e^{-x_m}\sum_i{e^{x_i}}}}
-    th.exp(x - x_max, out=out)
+    out = th.exp((x - x_max).to(dtype))
 
-    out /= out.sum(dim=dim, keepdim=True)
-    # th.div(out, out.sum(dim=dim, keepdim=True), out=out)
+    out = out / out.sum(dim=dim, keepdim=True)
 
     return out
 
