@@ -1,4 +1,7 @@
-.ipynb_checkpoints/
-*.code-workspace
-.history
 __pycache__/
+.coverage
+.history
+.ipynb_checkpoints/
+.pytest_cache
+.vscode
+*.code-workspace
