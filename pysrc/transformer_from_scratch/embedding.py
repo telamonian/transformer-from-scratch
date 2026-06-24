@@ -1,14 +1,14 @@
 import math
 from math import sqrt
 import torch as th
-import torch.nn as nn
+from torch import nn, Tensor
 
-def xavierInit(*size):
+def xavierInit(*size: int) -> Tensor:
     """see github.com/pytorch/pytorch/blob/0d62256a2b23365f8e1604297eb23a6545102aa8/torch/nn/init.py#L479,
     Massive Exploration of Neural Machine Translation Architectures: arxiv.org/pdf/1703.03906
     """
 
-    def getFanInFanOut(*size):
+    def getFanInFanOut(*size: int) -> tuple[int, int]:
         if len(size) < 2:
             raise ValueError("Cannot calculate fan_in/_out for less then 2 dimensions")
 
@@ -20,15 +20,15 @@ def xavierInit(*size):
     return th.empty(*size).uniform_(-a, a)
 
 class Embedding(nn.Module):
-    def __init__(self, n_vocab, d_model):
+    def __init__(self, n_vocab: int, d_model: int):
         super().__init__()
 
-        self.n_vocab = n_vocab
-        self.d_model = d_model
+        self.n_vocab: int = n_vocab
+        self.d_model: int = d_model
 
-        self.weight = nn.Parameter(xavierInit(self.n_vocab, self.d_model))
+        self.weight: nn.Parameter = nn.Parameter(xavierInit(self.n_vocab, self.d_model))
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         """From AIAYN: "In the embedding layers, we multiply those weights by sqrt(d_model)"
         """
         # when indexing a tensor with another tensor, each tensor element is treated as an individual index.
@@ -37,11 +37,15 @@ class Embedding(nn.Module):
         return self.weight[x] #*self.d_model_sqrt
 
 class PositionalEncoder(nn.Module):
-    def __init__(self, d_model, seq_len_max=None):
+    # annotation-only declaration for the buffer registered below via register_buffer;
+    # it tells type checkers that self.pe is a Tensor without creating a class attribute.
+    pe: Tensor
+
+    def __init__(self, d_model: int, seq_len_max: int | None = None):
         super().__init__()
 
-        self.seq_len_max = 5000 if seq_len_max is None else seq_len_max
-        self.d_model = d_model
+        self.seq_len_max: int = 5000 if seq_len_max is None else seq_len_max
+        self.d_model: int = d_model
 
         pe = th.zeros(self.seq_len_max, self.d_model)
         pos = th.arange(self.seq_len_max).view(-1, 1)
@@ -56,7 +60,7 @@ class PositionalEncoder(nn.Module):
         # and also tells pytorch to move pe to a guest device (eg gpu) along with the rest of the model when appropriate
         self.register_buffer("pe", pe.unsqueeze(0))
 
-    def forward(self, x):
+    def forward(self, x: Tensor) -> Tensor:
         """x is expected to have shape [batch_size, n_sample, d_model]
         a chunk of pe with shape [1, n_sample, d_model] is added to x
         """

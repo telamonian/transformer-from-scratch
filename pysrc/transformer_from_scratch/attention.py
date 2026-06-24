@@ -2,7 +2,7 @@ from math import sqrt
 import torch as th
 from torch import nn, Tensor
 
-def softmax(x: Tensor, dim, dtype=None):
+def softmax(x: Tensor, dim: int, dtype: th.dtype | None = None) -> Tensor:
     """NOTE: all math must be out-of-place. Using th.exp(..., out=out) / in-place /= breaks
     autograd, which matters because softmax is fed grad-requiring scores during a forward pass.
     """
@@ -21,7 +21,7 @@ def softmax(x: Tensor, dim, dtype=None):
 
     return out / out.sum(dim=dim, keepdim=True)
 
-def attentionSDP(queries, keys, values, mask=None):
+def attentionSDP(queries: Tensor, keys: Tensor, values: Tensor, mask: Tensor | None = None) -> tuple[Tensor, Tensor]:
     """scaled dot-product attention.
     Expects q, k, v to be in the form [batch_size, n_heads, n_samples, d_k]
     """
@@ -34,23 +34,23 @@ def attentionSDP(queries, keys, values, mask=None):
 
     return softmax(weights, -1).matmul(values), weights
 
-def attentionSDP_oneline(queries, keys, values):
+def attentionSDP_oneline(queries: Tensor, keys: Tensor, values: Tensor) -> Tensor:
     return softmax(queries.matmul(keys.transpose(-2, -1))/sqrt(keys.shape[-1]), -1).matmul(values)
 
 class MultiHeadAttention(nn.Module):
-    def __init__(self, d_model, n_heads):
+    def __init__(self, d_model: int, n_heads: int):
         super().__init__()
 
-        self.d_model = d_model
-        self.n_heads = n_heads
-        self.d_k = d_model // n_heads
+        self.d_model: int = d_model
+        self.n_heads: int = n_heads
+        self.d_k: int = d_model // n_heads
 
         self.q_linear = nn.Linear(self.d_model, self.d_model)
         self.k_linear = nn.Linear(self.d_model, self.d_model)
         self.v_linear = nn.Linear(self.d_model, self.d_model)
         self.out_linear = nn.Linear(self.d_model, self.d_model)
 
-    def forward(self, queries, keys, values, mask=None):
+    def forward(self, queries: Tensor, keys: Tensor, values: Tensor, mask: Tensor | None = None) -> Tensor:
         queries = self.unfold(self.q_linear(queries))
         keys = self.unfold(self.k_linear(keys))
         values = self.unfold(self.v_linear(values))
@@ -59,14 +59,14 @@ class MultiHeadAttention(nn.Module):
 
         return self.out_linear(self.fold(values))
 
-    def unfold(self, t):
+    def unfold(self, t: Tensor) -> Tensor:
         """tensor t starts out with shape [batch_size, n_samples, d_model],
         ends up with [batch_size, n_heads, n_samples, d_k]
         """
         batch_size, n_samples, _ = t.shape
         return t.view(batch_size, n_samples, self.n_heads, self.d_k).transpose(1, 2)
 
-    def fold(self, t):
+    def fold(self, t: Tensor) -> Tensor:
         """tensor t starts out with shape [batch_size, n_heads, n_samples, d_k],
         ends up with [batch_size, n_samples, d_model]
         """
