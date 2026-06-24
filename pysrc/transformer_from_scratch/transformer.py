@@ -16,8 +16,6 @@ def makeMaskCausal(t):
     _, n_samples = t.shape
     return th.tril(th.ones(n_samples, n_samples)).reshape(1, 1, n_samples, n_samples)
 
-    # return th.tril(th.ones(self.d_k, self.d_k)).reshape(1, 1, self.d_k, self.d_k)
-
 class Transformer(nn.Module):
     def __init__(self, d_model, n_heads, n_vocab, n_vocab_tgt=None, d_ff=None, pad_elem=None, tie_embed=False, tie_output=False):
         super().__init__()
@@ -52,6 +50,9 @@ class Transformer(nn.Module):
             self.output.weight = self.embedding_dec.weight
 
     def forward(self, src, tgt):
+        # build masks from the raw token ids before embedding.
+        # src_mask is used for encoder self-attention and is reused for decoder cross-attention. It hides any padding, if present, in the src
+        # tgt_mask is used for decoder self-attention. It always includes the causal mask that ensures positions cannot see the "future", and also hides any padding, if present, in the tgt
         if self.pad_elem is None:
             src_mask = None
             tgt_mask = makeMaskCausal(tgt)
