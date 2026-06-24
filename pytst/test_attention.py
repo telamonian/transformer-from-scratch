@@ -3,7 +3,7 @@ from math import sqrt
 
 import pytest
 import torch as th
-from torch import nn
+from torch import nn, Tensor
 
 from transformer_from_scratch.attention import (
     MultiHeadAttention,
@@ -57,7 +57,7 @@ class TestSoftmax:
 
 
 class TestAttentionSDP:
-    def _qkv(self):
+    def _qkv(self) -> tuple[Tensor, Tensor, Tensor]:
         q = th.randn(BATCH, N_HEADS, SEQ, D_K)
         k = th.randn(BATCH, N_HEADS, SEQ, D_K)
         v = th.randn(BATCH, N_HEADS, SEQ, D_K)

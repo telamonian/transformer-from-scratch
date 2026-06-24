@@ -1,8 +1,8 @@
 """Tests for transformer_from_scratch.xcoder (LayerNorm, FeedForward, En/Decoder)."""
 import pytest
 import torch as th
+from torch import nn, Tensor
 import torch.nn.functional as F
-from torch import nn
 
 from transformer_from_scratch.xcoder import (
     Decoder,
@@ -77,7 +77,7 @@ class TestFeedForward:
         assert ff(x).shape == (BATCH, SEQ, D_MODEL)
 
 
-def _pad_mask():
+def _pad_mask() -> Tensor:
     mask = th.ones(BATCH, 1, 1, SEQ, dtype=th.bool)
     mask[:, :, :, -1] = False
     return mask

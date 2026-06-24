@@ -5,6 +5,7 @@ seed is applied before every test so results are deterministic and comparable ru
 """
 import pytest
 import torch as th
+from torch import Tensor
 
 # Small dims keep the tests fast while still exercising every code path. d_model must stay
 # divisible by n_heads (d_k = d_model // n_heads).
@@ -24,7 +25,7 @@ def _seed():
 
 
 @pytest.fixture
-def dims():
+def dims() -> dict[str, int]:
     """Bundle of the small dimensions, handed to tests that want to read them by name."""
     return {
         "d_model": D_MODEL,
@@ -38,14 +39,14 @@ def dims():
 
 
 @pytest.fixture
-def tokens():
+def tokens() -> Tensor:
     """A plain (unpadded) batch of token ids, shape [BATCH, SEQ]."""
     # low=1 so we never accidentally emit the PAD id (0) in the "no padding" batch.
     return th.randint(low=1, high=N_VOCAB, size=(BATCH, SEQ))
 
 
 @pytest.fixture
-def tokens_padded():
+def tokens_padded() -> Tensor:
     """A batch of token ids with trailing PAD, including one fully-padded row.
 
     Row 0 has real tokens in the first two positions then PAD; row 1 is entirely PAD. The

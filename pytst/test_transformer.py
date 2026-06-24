@@ -3,7 +3,7 @@ from math import sqrt
 
 import pytest
 import torch as th
-from torch import nn
+from torch import nn, Tensor
 
 from transformer_from_scratch.transformer import (
     Transformer,
@@ -42,7 +42,7 @@ class TestMakeMaskCausal:
         assert th.equal(mask.reshape(SEQ, SEQ), expected)
 
 
-def _model(**kwargs):
+def _model(**kwargs) -> Transformer:
     defaults = dict(d_model=D_MODEL, n_heads=N_HEADS, n_vocab=N_VOCAB)
     defaults.update(kwargs)
     return Transformer(**defaults)
@@ -89,7 +89,7 @@ class TestTransformerForward:
         assert out.shape == (BATCH, SEQ - 1, N_VOCAB)
         assert not th.isnan(out).any()
 
-    def test_pad_branch_handles_padding(self, tokens_padded):
+    def test_pad_branch_handles_padding(self, tokens_padded: Tensor):
         # pad_elem set -> src padding mask + (pad & causal) tgt mask; includes an all-pad row
         model = _model(pad_elem=PAD)
         out = model(tokens_padded, tokens_padded)
