@@ -37,15 +37,15 @@ class Embedding(nn.Module):
         return self.weight[x] #*self.d_model_sqrt
 
 class PositionalEncoder(nn.Module):
-    def __init__(self, n_vocab, d_model):
+    def __init__(self, d_model, seq_len_max=5000):
         super().__init__()
 
-        self.n_vocab = n_vocab
+        self.seq_len_max = seq_len_max
         self.d_model = d_model
 
-        pe = th.zeros(n_vocab, d_model)
-        pos = th.arange(n_vocab).view(-1, 1)
-        arg = pos/(10000 ** (th.arange(0, d_model, 2)/d_model))
+        pe = th.zeros(self.seq_len_max, self.d_model)
+        pos = th.arange(self.seq_len_max).view(-1, 1)
+        arg = pos/(10000 ** (th.arange(0, self.d_model, 2)/self.d_model))
 
         pe[:, ::2] = th.sin(arg)
         pe[:, 1::2] = th.cos(arg)
