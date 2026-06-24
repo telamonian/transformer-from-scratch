@@ -1,4 +1,3 @@
-from math import sqrt
 import torch as th
 import torch.nn as nn
 
@@ -20,7 +19,7 @@ class LayerNorm(nn.Module):
         # σσ is meant to be σ^2, ie the variance
         σσ = th.var(x, -1, keepdim=True, correction=0)
 
-        return self.γ * (x - μ)/sqrt(σσ + self.ε) + self.β
+        return self.γ * (x - μ)/th.sqrt(σσ + self.ε) + self.β
 
 class FeedForward(nn.Module):
     def __init__(self, d_model, d_ff=None):
