@@ -17,7 +17,7 @@ def makeMaskCausal(t):
     return th.tril(th.ones(n_samples, n_samples, dtype=th.bool)).reshape(1, 1, n_samples, n_samples)
 
 class Transformer(nn.Module):
-    def __init__(self, d_model, n_heads, n_vocab, n_vocab_tgt=None, d_ff=None, pad_elem=None, tie_embed=False, tie_output=False):
+    def __init__(self, d_model, n_heads, n_vocab, n_vocab_tgt=None, d_ff=None, pad_elem=None, seq_len_max=None, tie_embed=False, tie_output=False):
         super().__init__()
 
         self.d_model = d_model
@@ -29,6 +29,7 @@ class Transformer(nn.Module):
         self.d_ff = d_ff
         # element that represents padding in input
         self.pad_elem = pad_elem
+        self.seq_len_max = seq_len_max
         self.tie_embed = tie_embed
         self.tie_output = tie_output
 
@@ -38,7 +39,7 @@ class Transformer(nn.Module):
         else:
             self.embedding_dec = Embedding(n_vocab=self.n_vocab_tgt, d_model=self.d_model)
 
-        self.positional_enc = PositionalEncoder(n_vocab=self.n_vocab, d_model=self.d_model)
+        self.positional_enc = PositionalEncoder(d_model=self.d_model, seq_len_max=self.seq_len_max)
 
         self.encoder = Encoder(d_model=self.d_model, n_heads=self.n_heads, n_layers=6, d_ff=self.d_ff)
         self.decoder = Decoder(d_model=self.d_model, n_heads=self.n_heads, n_layers=6, d_ff=self.d_ff)
