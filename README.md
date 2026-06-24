@@ -37,24 +37,24 @@ flowchart BT
   encAN2 -.->|"K, V"| decMHA
   decAN3 --> linear["Linear"] --> softmax["Softmax"] --> outProbs["Output Probabilities"]
 
-  click encEmb   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L22"   "Embedding — token lookup table (xavier-init); ×√d_model at transformer.py#L64" _blank
-  click encPos   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L39"   "PositionalEncoder — fixed sin/cos table" _blank
-  click encMHA   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L60"      "Encoder self-attention: mha_zero(x, x, x)" _blank
-  click encAN1   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L62"      "Residual add (#L61) + LayerNorm" _blank
-  click encFF    "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L24"      "FeedForward: Linear → ReLU → Linear" _blank
-  click encAN2   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L67"      "Residual add (#L66) + LayerNorm" _blank
+  click encEmb "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L22" "Embedding — token lookup table (xavier-init); ×√d_model at transformer.py#L64" _blank
+  click encPos "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L39" "PositionalEncoder — fixed sin/cos table" _blank
+  click encMHA "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L60" "Encoder self-attention: mha_zero(x, x, x)" _blank
+  click encAN1 "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L62" "Residual add (#L61) + LayerNorm" _blank
+  click encFF "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L24" "FeedForward: Linear → ReLU → Linear" _blank
+  click encAN2 "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L67" "Residual add (#L66) + LayerNorm" _blank
 
-  click decEmb   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L22"   "Output Embedding (embedding_dec)" _blank
-  click decPos   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L39"   "PositionalEncoder" _blank
-  click decMMHA  "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L95"      "Masked self-attention; causal mask at transformer.py#L15" _blank
-  click decAN1   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L97"      "Residual add + LayerNorm" _blank
-  click decMHA   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L100"     "Cross-attention: Q = decoder, K/V = encoder output" _blank
-  click decAN2   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L102"     "Residual add + LayerNorm" _blank
-  click decFF    "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L24"      "FeedForward (called at xcoder.py#L105)" _blank
-  click decAN3   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L107"     "Residual add + LayerNorm" _blank
+  click decEmb "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L22" "Output Embedding (embedding_dec)" _blank
+  click decPos "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/embedding.py#L39" "PositionalEncoder" _blank
+  click decMMHA "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L95" "Masked self-attention; causal mask at transformer.py#L15" _blank
+  click decAN1 "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L97" "Residual add + LayerNorm" _blank
+  click decMHA "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L100" "Cross-attention: Q = decoder, K/V = encoder output" _blank
+  click decAN2 "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L102" "Residual add + LayerNorm" _blank
+  click decFF "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L24" "FeedForward (called at xcoder.py#L105)" _blank
+  click decAN3 "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/xcoder.py#L107" "Residual add + LayerNorm" _blank
 
-  click linear   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/transformer.py#L47" "self.output = nn.Linear(d_model, n_vocab_tgt, bias=False)" _blank
-  click softmax  "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L5"     "softmax(); final vocab softmax is folded into the loss — forward returns logits (transformer.py#L73)" _blank
+  click linear "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/transformer.py#L47" "self.output = nn.Linear(d_model, n_vocab_tgt, bias=False)" _blank
+  click softmax "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L5" "softmax(); final vocab softmax is folded into the loss — forward returns logits (transformer.py#L73)" _blank
   click outProbs "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/transformer.py#L73" "return self.output(tgt)" _blank
 ```
 
@@ -90,16 +90,16 @@ flowchart BT
     mhaVKQ["V, K, Q"] --> mhaLin["Linear"] --> mhaSDPA["Scaled Dot-Product Attention (×h)"] --> mhaConcat["Concat"] --> mhaOut["Linear"]
   end
 
-  click sdpMM1   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L30" "weights = Q · Kᵀ" _blank
+  click sdpMM1 "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L30" "weights = Q · Kᵀ" _blank
   click sdpScale "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L30" "÷ sqrt(d_k)" _blank
-  click sdpMask  "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L33" "masked_fill(mask == 0, -1e9)" _blank
-  click sdpSM    "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L5"  "softmax() — applied at attention.py#L35" _blank
-  click sdpMM2   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L35" "softmax(weights) · V" _blank
+  click sdpMask "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L33" "masked_fill(mask == 0, -1e9)" _blank
+  click sdpSM "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L5" "softmax() — applied at attention.py#L35" _blank
+  click sdpMM2 "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L35" "softmax(weights) · V" _blank
 
-  click mhaLin    "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L48" "q/k/v_linear projections; split into heads via unfold (#L62)" _blank
-  click mhaSDPA   "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L24" "attentionSDP — called from MHA at attention.py#L58" _blank
+  click mhaLin "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L48" "q/k/v_linear projections; split into heads via unfold (#L62)" _blank
+  click mhaSDPA "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L24" "attentionSDP — called from MHA at attention.py#L58" _blank
   click mhaConcat "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L69" "fold: transpose + reshape heads back (called #L60)" _blank
-  click mhaOut    "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L51" "out_linear (applied #L60)" _blank
+  click mhaOut "https://github.com/telamonian/transformer-from-scratch/blob/main/pysrc/transformer_from_scratch/attention.py#L51" "out_linear (applied #L60)" _blank
 ```
 
 <sub>Re-creation of *Attention Is All You Need*, Figure 2 — Scaled Dot-Product Attention
