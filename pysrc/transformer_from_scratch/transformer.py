@@ -5,8 +5,21 @@ import torch.nn as nn
 from transformer_from_scratch.embedding import Embedding, PositionalEncoder
 from transformer_from_scratch.xcoder import Encoder, Decoder
 
+def makeMaskPad(t, pad_elem):
+    """expects t shape to be [batch_size, n_samples]
+    n_samples is equivalent to what is called seq_len in some discussions/implementations
+    """
+    batch_size, n_samples = t.shape
+    return (t != pad_elem).reshape(batch_size, 1, 1, n_samples)
+
+def makeMaskCausal(t):
+    _, n_samples = t.shape
+    return th.tril(th.ones(n_samples, n_samples)).reshape(1, 1, n_samples, n_samples)
+
+    # return th.tril(th.ones(self.d_k, self.d_k)).reshape(1, 1, self.d_k, self.d_k)
+
 class Transformer(nn.Module):
-    def __init__(self, d_model, n_heads, n_vocab, n_vocab_tgt=None, d_ff=None, tie_embed=False, tie_output=False):
+    def __init__(self, d_model, n_heads, n_vocab, n_vocab_tgt=None, d_ff=None, pad_elem=None, tie_embed=False, tie_output=False):
         super().__init__()
 
         self.d_model = d_model
@@ -16,6 +29,8 @@ class Transformer(nn.Module):
         self.n_vocab = n_vocab
         self.n_vocab_tgt = n_vocab if n_vocab_tgt is None else n_vocab_tgt
         self.d_ff = d_ff
+        # element that represents padding in input
+        self.pad_elem = pad_elem
         self.tie_embed = tie_embed
         self.tie_output = tie_output
 
@@ -32,19 +47,25 @@ class Transformer(nn.Module):
 
         self.output = nn.Linear(self.d_model, self.n_vocab_tgt, bias=False)
 
-        if tie_output:
+        if self.tie_output:
             # TODO does the right hand side need to be transposed?
             self.output.weight = self.embedding_dec.weight
 
     def forward(self, src, tgt):
-        # TODO figure out masking
+        if self.pad_elem is None:
+            src_mask = None
+            tgt_mask = makeMaskCausal(tgt)
+        else:
+            src_mask = makeMaskPad(src, pad_elem=self.pad_elem)
+            tgt_mask = makeMaskPad(tgt, pad_elem=self.pad_elem) | makeMaskCausal(tgt)
+
         src = self.embedding_enc(src)*self.d_model_sqrt
         tgt = self.embedding_dec(tgt)*self.d_model_sqrt
 
         src = self.positional_enc(src)
         tgt = self.positional_enc(tgt)
 
-        src = self.encoder(src)
-        tgt = self.decoder(tgt, out_enc=src)
+        src = self.encoder(src, mask=src_mask)
+        tgt = self.decoder(tgt, out_enc=src, mask=tgt_mask, mask_enc=src_mask)
 
         return self.output(tgt)

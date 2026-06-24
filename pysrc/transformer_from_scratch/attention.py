@@ -32,19 +32,6 @@ def attentionSDP(queries, keys, values, mask=None):
 def attentionSDP_oneline(queries, keys, values):
     return softmax(queries.matmul(keys.transpose(-2, -1))/sqrt(keys.shape[-1]), -1).matmul(values)
 
-def makeMaskPad(t, pad_id):
-    """expects t shape to be [batch_size, n_samples]
-    n_samples is equivalent to what is called seq_len in some discussions/implementations
-    """
-    batch_size, n_samples = t.shape
-    return (t != pad_id).reshape(batch_size, 1, 1, n_samples)
-
-def makeMaskCausal(t):
-    _, n_samples = t.shape
-    return th.tril(th.ones(n_samples, n_samples)).reshape(1, 1, n_samples, n_samples)
-
-    # return th.tril(th.ones(self.d_k, self.d_k)).reshape(1, 1, self.d_k, self.d_k)
-
 class MultiHeadAttention(nn.Module):
     def __init__(self, d_model, n_heads):
         super().__init__()
